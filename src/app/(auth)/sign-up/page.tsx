@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import { useDebounceValue } from "usehooks-ts"
+import { useDebounceValue, } from "usehooks-ts"
 import { toast } from "sonner"
 import axios, { type AxiosError } from "axios"
 import { useRouter } from "next/navigation"
@@ -19,7 +19,7 @@ export default function SignUpForm() {
   const [isCheckingUsername, setIsCheckingUsername] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const debouncedUsername = useDebounceValue(username, 300)
+  const [debouncedUsername] = useDebounceValue(username, 600)
   const router = useRouter()
 
   const form = useForm<z.infer<typeof signUpSchema>>({
@@ -32,23 +32,32 @@ export default function SignUpForm() {
   })
 
   useEffect(() => {
-    const checkUsernameUnique = async () => {
-      if (debouncedUsername[0]) {
-        setIsCheckingUsername(true)
-        setUsernameMessage("") // Reset message
-        try {
-          const response = await axios.get<ApiResponse>(`/api/check-username-unique?username=${debouncedUsername[0]}`)
-          setUsernameMessage(response.data.message)
-        } catch (error) {
-          const axiosError = error as AxiosError<ApiResponse>
-          setUsernameMessage(axiosError.response?.data.message ?? "Error checking username")
-        } finally {
-          setIsCheckingUsername(false)
-        }
-      }
+    if (!debouncedUsername) {
+      setUsernameMessage("");  // Clear message if empty
+      return;
     }
-    checkUsernameUnique()
-  }, [debouncedUsername])
+  
+    const checkUsernameUnique = async () => {
+      setIsCheckingUsername(true);
+      setUsernameMessage(""); 
+  
+      try {
+        const response = await axios.get<ApiResponse>(`/api/check-username-unique?username=${debouncedUsername}`);
+        setUsernameMessage(response.data.message);
+      } catch (error) {
+        console.error("Username check error:", error);
+        const axiosError = error as AxiosError<ApiResponse>;
+        setUsernameMessage(axiosError.response?.data.message ?? "Error checking username");
+      } finally {
+        setIsCheckingUsername(false);
+      }
+    };
+  
+    checkUsernameUnique();
+  }, [debouncedUsername]); // ✅ Only runs when debouncedUsername changes
+  
+  
+  
 
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     setIsSubmitting(true)
