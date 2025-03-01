@@ -32,8 +32,8 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     const isPasswordCorrect = await bcrypt.compare(
-                        credentails.identifier.password, user.password
-                    )
+                        credentails.password, user.password
+                    );
 
                     if (isPasswordCorrect) {
                         return user;
@@ -44,8 +44,8 @@ export const authOptions: NextAuthOptions = {
 
                 }
                 catch(err:any){
-                    throw new Error(err);
-                }
+                    throw new Error(err.message || "An unknown error occurred");
+                }             
             }
         })
     ],

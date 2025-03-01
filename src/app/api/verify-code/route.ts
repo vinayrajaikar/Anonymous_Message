@@ -7,8 +7,10 @@ const UsernameQuerySchema = z.object({
 })
 
 export async function POST(request:Request){
+    console.log("hello0");
     try{
         const { username, code } = await request.json();
+        console.log(username,code)
 
         const validationUser = UsernameQuerySchema.safeParse({username});
         if(!validationUser.success){
