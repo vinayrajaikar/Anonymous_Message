@@ -2,6 +2,7 @@ import prisma from "@/lib/prismaClient";
 
 export async function POST(req: Request) {
   const { username, content } = await req.json();
+  console.log(username, content);
 
   try { 
     // Find user by username

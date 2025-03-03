@@ -18,6 +18,7 @@ export async function POST(req:Request){
     const userId = user?.id;
     const userIdInt = parseInt(userId, 10);
     const {acceptMessages} = await req.json();
+    console.log(acceptMessages);
 
     try{
         const updatedUser = await prisma.user.update({
